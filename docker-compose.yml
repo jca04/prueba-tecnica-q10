@@ -4,6 +4,8 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -24,14 +26,16 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
+      - "5672:5672"
       - "15672:15672"
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
       interval: 10s
       timeout: 10s
       retries: 10
+      start_period: 30s
     networks: [backend]
 
   orders-api:
